@@ -8,8 +8,19 @@ const ENEMY_COLORS = {
     gnoll: 0x8b4513, kobold: 0xe74c3c, crab: 0xe67e22,
     sahuagin: 0x1abc9c, ghost: 0x9b59b6, troll: 0x27ae60,
     werewolf: 0x7f8c8d, vampire_girl: 0x8e44ad,
-    countess_vampire: 0x6c3483, demon_slime: 0x922b21
+    countess_vampire: 0x6c3483, demon_slime: 0x922b21,
+    'gobelin-lance': 0x3d8b37, 'gobelin-hache': 0x5a4a00, 'gobelin-arc': 0x2e7d32,
+    'gobelin-roi': 0xb7950b, 'gobelin-sorcier': 0x6a1b9a,
+    'squelette': 0xd0d0d0, 'squelette-noir': 0x555555,
+    'fantome-bleu': 0x1565c0, 'fantome-noir': 0x212121,
+    'boss01': 0xb71c1c
 };
+
+// Clés qui ont un vrai spritesheet RPG-Character (32x32 ou 96x96)
+const RPG_SPRITE_KEYS = new Set([
+    'gobelin-lance', 'gobelin-hache', 'gobelin-arc', 'gobelin-roi', 'gobelin-sorcier',
+    'squelette', 'squelette-noir', 'fantome-bleu', 'fantome-noir', 'boss01'
+]);
 
 export default class WorldScene extends Phaser.Scene {
     constructor() {
@@ -113,10 +124,19 @@ export default class WorldScene extends Phaser.Scene {
     createEnemySprite(x, y, type, id, isBoss, world) {
         const color  = ENEMY_COLORS[type] ?? 0xff4444;
         const radius = isBoss ? 36 : 24;
-        const circle = this.add.circle(x, y, radius, color).setDepth(5);
-        const label  = this.add.text(x, y, this.getEnemyEmoji(type), {
-            fontSize: isBoss ? '28px' : '20px'
-        }).setOrigin(0.5).setDepth(6);
+
+        let circle, label;
+        if (RPG_SPRITE_KEYS.has(type)) {
+            const scale = isBoss ? 2.5 : 1.8;
+            circle = this.add.sprite(x, y, type, 1).setScale(scale).setDepth(5);
+            circle.anims.play(`${type}_idle`);
+            label = null;
+        } else {
+            circle = this.add.circle(x, y, radius, color).setDepth(5);
+            label  = this.add.text(x, y, this.getEnemyEmoji(type), {
+                fontSize: isBoss ? '28px' : '20px'
+            }).setOrigin(0.5).setDepth(6);
+        }
 
         const hpBar = this.add.rectangle(x, y - radius - 8, radius * 2, 6, 0x00ff00).setDepth(6).setOrigin(0.5);
 

@@ -28,6 +28,17 @@ export default class PreloadScene extends Phaser.Scene {
         // Vampire bosses
         this.load.image('vampire_girl',      'assets/sprites/vampires/vampire_girl.png');
         this.load.image('countess_vampire',  'assets/sprites/vampires/countess_vampire.png');
+
+        // RPG-Character sprites (32x32 per frame — 3 cols x 4 rows : bas, gauche, droite, haut)
+        const rpgEnemies = [
+            'fantome-bleu', 'fantome-noir',
+            'gobelin-arc', 'gobelin-hache', 'gobelin-lance', 'gobelin-roi', 'gobelin-sorcier',
+            'squelette', 'squelette-noir'
+        ];
+        rpgEnemies.forEach(e => this.load.spritesheet(e, `assets/sprites/rpg/${e}.png`, { frameWidth: 32, frameHeight: 32 }));
+
+        // RPG Boss 01 (96x96 per frame — 3 cols x 4 rows)
+        this.load.spritesheet('boss01', 'assets/sprites/rpg/boss01.png', { frameWidth: 96, frameHeight: 96 });
     }
 
     create() {
@@ -72,6 +83,19 @@ export default class PreloadScene extends Phaser.Scene {
                     frameRate: a.frameRate,
                     repeat: a.repeat
                 });
+            }
+        });
+
+        // RPG-Character animations (format 3x4 : row0=bas 0-2, row1=gauche 3-5, row2=droite 6-8, row3=haut 9-11)
+        const rpgKeys = [
+            'fantome-bleu', 'fantome-noir',
+            'gobelin-arc', 'gobelin-hache', 'gobelin-lance', 'gobelin-roi', 'gobelin-sorcier',
+            'squelette', 'squelette-noir', 'boss01'
+        ];
+        rpgKeys.forEach(key => {
+            if (!this.anims.exists(`${key}_idle`)) {
+                this.anims.create({ key: `${key}_idle`, frames: [{ key, frame: 1 }], frameRate: 1, repeat: -1 });
+                this.anims.create({ key: `${key}_walk`, frames: this.anims.generateFrameNumbers(key, { start: 0, end: 2 }), frameRate: 6, repeat: -1 });
             }
         });
 

@@ -2,6 +2,11 @@ import Phaser from 'phaser';
 import { generateQuestion, generateChoices } from '../systems/MathEngine.js';
 import { DIFFICULTIES } from '../config/difficulties.js';
 
+const RPG_SPRITE_KEYS = new Set([
+    'gobelin-lance', 'gobelin-hache', 'gobelin-arc', 'gobelin-roi', 'gobelin-sorcier',
+    'squelette', 'squelette-noir', 'fantome-bleu', 'fantome-noir', 'boss01'
+]);
+
 export default class CombatScene extends Phaser.Scene {
     constructor() {
         super('CombatScene');
@@ -42,14 +47,20 @@ export default class CombatScene extends Phaser.Scene {
         const enemyColor = this.enemyData.color ?? 0xff4444;
         const isBoss = this.enemyData.isBoss;
 
-        if (isBoss && this.textures.exists('demon_slime')) {
-            this.enemySprite = this.add.sprite(W - 160, 180, 'demon_slime', 0)
-                .setScale(0.6)
-                .setFlipX(true);
+        const type = this.enemyData.type;
+
+        if (type === 'demon_slime' && this.textures.exists('demon_slime')) {
+            this.enemySprite = this.add.sprite(W - 160, 175, 'demon_slime', 0)
+                .setScale(0.6).setFlipX(true);
             this.enemySprite.anims.play('slime_boss_idle');
+        } else if (RPG_SPRITE_KEYS.has(type)) {
+            const scale = type === 'boss01' ? 3.5 : 4.5;
+            this.enemySprite = this.add.sprite(W - 160, 165, type, 1)
+                .setScale(scale).setFlipX(true);
+            this.enemySprite.anims.play(`${type}_idle`);
         } else {
             this.enemySprite = this.add.circle(W - 160, 160, isBoss ? 70 : 55, enemyColor);
-            this.add.text(W - 160, 160, this.getEnemyEmoji(this.enemyData.type), {
+            this.add.text(W - 160, 160, this.getEnemyEmoji(type), {
                 fontSize: isBoss ? '52px' : '40px'
             }).setOrigin(0.5);
         }
